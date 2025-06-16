@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Gatos estilosos - Loja Online</title>
+<style>
+  body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f7f9fc;
+    margin: 0;
+    padding: 0;
+    color: #333;
+  }
+  header {
+    background-color: #2f3542;
+    color: #f1f2f6;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  }
+  header h1 {
+    margin: 0;
+    font-weight: 700;
+  }
+  header p {
+    margin-top: 5px;
+    font-weight: 300;
+    font-size: 1.1em;
+    letter-spacing: 0.03em;
+  }
+  #searchBar {
+    margin: 20px auto;
+    display: block;
+    width: 90%;
+    max-width: 400px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    border-radius: 30px;
+    border: 1px solid #ccc;
+    transition: border-color 0.3s ease;
+  }
+  #searchBar:focus {
+    border-color: #3742fa;
+    outline: none;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto 60px;
+    padding: 0 15px;
+    display: grid;
+    grid-template-columns: repeat(auto-fill,minmax(250px,1fr));
+    gap: 20px;
+  }
+  .product {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 15px rgb(0 0 0 / 0.08);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    cursor: pointer;
+  }
+  .product:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 8px 20px rgb(0 0 0 / 0.15);
+  }
+  .product img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+  }
+  .product-content {
+    flex-grow: 1;
+    padding: 15px 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .product-title {
+    font-weight: 600;
+    font-size: 1.2rem;
+    margin: 0 0 8px 0;
+    color: #2f3542;
+  }
+  .product-info {
+    font-size: 0.9rem;
+    color: #57606f;
+    margin-bottom: 12px;
+  }
+  .price {
+    font-weight: 700;
+    color: #3742fa;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+  }
+  .buttons {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .buy-button {
+    flex: 1;
+    background-color: #3742fa;
+    border: none;
+    color: white;
+    padding: 10px 0;
+    font-weight: 700;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    margin-right: 10px;
+  }
+  .buy-button:hover {
+    background-color: #2f3542;
+  }
+  .like-button {
+    font-size: 24px;
+    cursor: pointer;
+    color: #ccc;
+    transition: color 0.3s ease;
+    user-select: none;
+  }
+  .like-button.liked {
+    color: #e84393;
+  }
+  #cart {
+    position: fixed;
+    bottom: 25px;
+    right: 25px;
+    background-color: #3742fa;
+    color: white;
+    padding: 15px 25px;
+    border-radius: 40px;
+    font-weight: 700;
+    box-shadow: 0 5px 15px rgba(55,66,250,0.6);
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+    z-index: 1000;
+  }
+  #cart:hover {
+    background-color: #2f3542;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Gatos com Estilo</h1>
+  <p>Gatos fashionistas!</p>
+</header>
+
+<input type="text" id="searchBar" placeholder="Buscar macacos estilosos..." oninput="filterProducts()" />
+
+<div class="container" id="product-list"></div>
+
+<div id="cart" onclick="viewCart()">🛒 Carrinho (0)</div>
+
+<script>
+  const products = [
+ 
+    {
+      name: "Miung Minwoo",
+      price: 999.99,
+      img: "https://i.pinimg.com/originals/e8/13/07/e813077b1102e0f510d65d69a1ce2945.gif",
+      size: "P, M",
+      color: "Azul/Preto",
+    },
+  {
+      name: "Migris",
+      price: 799.99,
+      img: "https://i.pinimg.com/736x/15/5b/6f/155b6ffda0caf31c413f772bc56374b2.jpg",
+      size: "P, M, G",
+      color: "Roxo/Preto",
+    },
+    {
+      name: "Miotaru Miojo",
+      price: 499.99,
+      img: "https://i.pinimg.com/736x/b6/08/cb/b608cbb8b2575bdd3fd9527a51d47eeb.jpg",
+      size: "M, G, GG",
+      color: "Branco/Preto",
+    },
+    {
+      name: "Miomen Miukuna",
+      price: 499.99,
+      img: "https://i.pinimg.com/736x/de/c1/27/dec127c5edd11483e2e2e3a3fb54bd23.jpg",
+      size: "P, M",
+      color: "Vermelho/Branco",
+    },
+    {
+      name: "Might Myagami",
+      price: 379.99,
+      img: "https://i.pinimg.com/736x/75/c8/39/75c8397b236bc8e9b27304d97c97d58b.jpg",
+      size: "M, G",
+      color: "Marrom",
+    },  {
+      name: "M",
+      price: 399.99,
+      img: "https://i.pinimg.com/736x/9a/59/70/9a5970171105fcda21e727702345adc7.jpg",
+      size: "M, G",
+      color: "Preto",
+    },  {
+      name: "Misoka",
+      price: 459.99,
+      img: "https://i.pinimg.com/736x/94/c5/fe/94c5fe648c7fc4d7ea0aa089698f57d2.jpg",
+      size: "M, G",
+      color: "Rosa",
+    },  {
+      name: "Minobu",
+      price: 349.99,
+      img: "https://i.pinimg.com/736x/68/2d/04/682d0423bf353fae46de44700fd3ab73.jpg",
+      size: "M, G",
+      color: "Roxo/Branco",
+    },  {
+      name: "Myahito",
+      price: 699.99,
+      img: "https://i.pinimg.com/736x/d1/2e/09/d12e090d1dc08e0b99571f055daa3597.jpg",
+      size: "M, G",
+      color: "Azul/Preto",
+    },  {
+      name: "Myahoraga",
+      price: 999.99,
+      img: "https://i.pinimg.com/736x/2b/36/16/2b3616f7d1df1ca4fb2698f50789109a.jpg",
+      size: "M, G",
+      color: "Branco",
+    },  {
+      name: "Myoso",
+      price: 379.99,
+      img: "https://i.pinimg.com/736x/52/e6/99/52e699fdbb5b6364c566537e548d06b5.jpg",
+      size: "M, G",
+      color: "Preto/Roxo",
+    },  {
+      name: "Myoji Myushiguro",
+      price: 459.99,
+      img: "https://i.pinimg.com/736x/e4/f2/85/e4f2853c7822a627956c53787e02de68.jpg",
+      size: "M, G",
+      color: "Preto/Roxo",
+    },  {
+      name: "Myonkey M. Muffy",
+      price: 777.77,
+      img: "https://i.pinimg.com/736x/52/f4/68/52f46821a1afe840e7c0931acfdf868b.jpg",
+      size: "M, G",
+      color: "Amarelo/Vermelho",
+    },  {
+      name: "Myreddy Mrazz Mear UR UR UR UR UR UR UR UR UR",
+      price: 649.99,
+      img: "https://i.pinimg.com/736x/8b/0f/6e/8b0f6ed31cb183cbbc8a9911d8a1e0ba.jpg",
+      size: "M, G",
+      color: "Marrom",
+    },  {
+      name: "Myuggy Muggy",
+      price: 399.99,
+      img: "https://i.pinimg.com/736x/5b/e5/e9/5be5e96470a4d04ee5b36bebc15e993c.jpg",
+      size: "M, G",
+      color: "Azul",
+    },  {
+      name: "agarafilin",
+      price: 666.66,
+      img: "https://i.pinimg.com/736x/ce/27/9e/ce279e06a3c4c63e6a986ecdc0275b0e.jpg",
+      size: "M, G",
+      color: "I GOT YOU.",
+    }, 
+];
+
+  const container = document.getElementById("product-list");
+  const cartButton = document.getElementById("cart");
+  let cart = [];
+  let likes = new Set();
+
+  function renderProducts(filter = "") {
+    container.innerHTML = "";
+    products.forEach((product, index) => {
+      if (
+        product.name.toLowerCase().includes(filter.toLowerCase()) ||
+        (product.color && product.color.toLowerCase().includes(filter.toLowerCase()))
+      ) {
+        const div = document.createElement("div");
+        div.className = "product";
+        div.innerHTML = `
+          <img src="${product.img}" alt="${product.name}" />
+          <div class="product-content">
+            <h3 class="product-title">${product.name}</h3>
+            <p class="product-info"><strong>Tamanhos:</strong> ${product.size} | <strong>Cor:</strong> ${product.color}</p>
+            <p class="price">R$ ${product.price.toFixed(2)}</p>
+            <div class="buttons">
+              <button class="buy-button" onclick="addToCart(${index}, event)">Comprar</button>
+              <span class="like-button ${likes.has(index) ? 'liked' : ''}" onclick="toggleLike(${index}, event)">&#10084;</span>
+            </div>
+          </div>
+        `;
+        div.addEventListener("click", (e) => {
+          if (
+            e.target.tagName !== "BUTTON" &&
+            e.target.className !== "like-button" &&
+            e.target.tagName !== "IMG" &&
+            e.target.tagName !== "H3" &&
+            e.target.tagName !== "P" &&
+            e.target.className !== "product-content" &&
+            e.target.className !== "product-info"
+          ) {
+            return;
+          }
+          showDetails(index);
+        });
+        container.appendChild(div);
+      }
+    });
+  }
+
+  function addToCart(index, event) {
+    event.stopPropagation();
+    cart.push(products[index]);
+    updateCartDisplay();
+    alert(`Produto adicionado ao carrinho: ${products[index].name}`);
+  }
+
+  function toggleLike(index, event) {
+    event.stopPropagation();
+    if (likes.has(index)) {
+      likes.delete(index);
+    } else {
+      likes.add(index);
+    }
+    renderProducts(document.getElementById("searchBar").value);
+  }
+
+  function updateCartDisplay() {
+    cartButton.textContent = `🛒 Carrinho (${cart.length})`;
+  }
+
+  function viewCart() {
+    if (cart.length === 0) {
+      alert("Seu carrinho está vazio!");
+      return;
+    }
+
+    let summary = "Itens no carrinho:\n\n";
+    let total = 0;
+
+    cart.forEach((item, i) => {
+      summary += `${i + 1}. ${item.name} - R$ ${item.price.toFixed(2)}\n`;
+      total += item.price;
+    });
+
+    summary += `\nTotal: R$ ${total.toFixed(2)}\n\nDigite o número do item que deseja remover ou cancele.`;
+
+    const input = prompt(summary);
+
+    if (input === null) return;
+
+    const index = parseInt(input) - 1;
+
+    if (isNaN(index) || index < 0 || index >= cart.length) {
+      alert("Número inválido. Nenhuma alteração feita.");
+      return;
+    }
+
+    removeFromCart(index);
+  }
+
+  function removeFromCart(index) {
+    const removed = cart.splice(index, 1);
+    updateCartDisplay();
+    alert(`Produto removido do carrinho: ${removed[0].name}`);
+  }
+
+  function filterProducts() {
+    const filter = document.getElementById("searchBar").value;
+    renderProducts(filter);
+  }
+
+  function showDetails(index) {
+    const p = products[index];
+    alert(`Detalhes do Produto:\n\nNome: ${p.name}\nPreço: R$ ${p.price.toFixed(2)}\nTamanhos: ${p.size}\nCor: ${p.color}`);
+  }
+
+  renderProducts();
+</script>
+
+</body:
+
